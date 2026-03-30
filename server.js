@@ -7,7 +7,9 @@ const multer = require('multer');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'database.db');
+const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(__dirname, 'public', 'uploads');
 
 // Middleware
 app.use(cors());
@@ -16,15 +18,14 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Configurar pasta de uploads
-const uploadsDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
 // Configurar multer para upload de imagens
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadsDir);
+        cb(null, UPLOADS_DIR);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -35,7 +36,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Banco de dados
-const db = new sqlite3.Database(path.join(__dirname, 'database.db'), (err) => {
+const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
         console.error('Erro ao conectar ao banco de dados:', err.message);
     } else {
@@ -205,6 +206,11 @@ app.post('/api/pedidos', async (req, res) => {
 
 // ===== ROTAS DO PAINEL ADMIN =====
 
+// Healthcheck para deploy (Render)
+app.get('/health', (req, res) => {
+    res.status(200).json({ ok: true, service: 'chocoval-api' });
+});
+
 // Servir página de admin
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
@@ -314,6 +320,7 @@ app.put('/api/admin/pedidos/:id', async (req, res) => {
 
 // Iniciar servidor
 app.listen(PORT, () => {
-    console.log(`🐰 Servidor rodando em http://localhost:${PORT}`);
-    console.log(`📊 Painel Admin em http://localhost:${PORT}/admin`);
+    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Banco SQLite em: ${DB_PATH}`);
+    console.log(`Uploads em: ${UPLOADS_DIR}`);
 });

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: chocoval
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /opt/render/project/src/database.db
+      - key: UPLOADS_DIR
+        value: /opt/render/project/src/public/uploads
