@@ -65,49 +65,109 @@ function renderImagemCard(container, imagem, fallback = '🍫') {
     }
 }
 
+function normalizarTexto(valor = '') {
+    return String(valor)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function pontuarSimilaridade(nomeCard, nomeProduto) {
+    const a = normalizarTexto(nomeCard);
+    const b = normalizarTexto(nomeProduto);
+    if (!a || !b) return 0;
+    if (a === b) return 1;
+    if (a.includes(b) || b.includes(a)) return 0.95;
+
+    const tokensA = a.split(' ').filter(t => t.length > 2);
+    const tokensB = b.split(' ').filter(t => t.length > 2);
+    if (!tokensA.length || !tokensB.length) return 0;
+
+    let comuns = 0;
+    tokensA.forEach(t => {
+        if (tokensB.includes(t)) comuns++;
+    });
+    return comuns / Math.max(tokensA.length, tokensB.length);
+}
+
+function escaparJSString(texto = '') {
+    return String(texto).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+function formatarPrecoBRL(valor) {
+    return `R$ ${Number(valor).toFixed(2).replace('.', ',')}`;
+}
+
+function extrairNomeDoOnclick(onclick = '') {
+    const match = onclick.match(/\('([^']+)'\s*,/);
+    return match ? match[1] : '';
+}
+
+function atualizarAcaoBotaoProduto(botao, produto) {
+    if (!botao || !produto) return;
+
+    const onclick = botao.getAttribute('onclick') || '';
+    const nomeEscapado = escaparJSString(produto.nome || 'Produto');
+    const preco = Number(produto.preco || 0);
+
+    if (onclick.includes('abrirConfigurador(')) {
+        botao.setAttribute('onclick', `abrirConfigurador('${nomeEscapado}', ${preco})`);
+        return;
+    }
+
+    if (onclick.includes('adicionarAoCarrinho(')) {
+        botao.setAttribute('onclick', `adicionarAoCarrinho('${nomeEscapado}', ${preco}, '')`);
+    }
+}
+
+function encontrarProdutoMaisProximo(produtos, nomeCard) {
+    let melhor = null;
+    let melhorScore = 0;
+
+    produtos.forEach(produto => {
+        const score = pontuarSimilaridade(nomeCard, produto.nome || '');
+        if (score > melhorScore) {
+            melhorScore = score;
+            melhor = produto;
+        }
+    });
+
+    return melhorScore >= 0.45 ? melhor : null;
+}
+
 function sincronizarCardsCatalogo() {
     fetch('/api/produtos')
         .then(res => res.json())
         .then(produtos => {
-            const colher250 = produtos.find(p => p.nome && p.nome.includes('Colher 250g'));
-            const colher500 = produtos.find(p => p.nome && p.nome.includes('Colher 500g'));
+            const cards = document.querySelectorAll('.card-produto');
+            cards.forEach(card => {
+                const botao = card.querySelector('button');
+                if (!botao) return;
 
-            atualizarCardColher('[data-categoria="colher"][data-tamanho="250g"]', colher250, 250);
-            atualizarCardColher('[data-categoria="colher"][data-tamanho="500g"]', colher500, 500);
+                const nomeAtual = extrairNomeDoOnclick(botao.getAttribute('onclick') || '');
+                const produto = encontrarProdutoMaisProximo(produtos, nomeAtual);
+                if (!produto) return;
+
+                const imagemEl = card.querySelector('.card-imagem');
+                const tituloEl = card.querySelector('h3');
+                const precoEl = card.querySelector('.preco');
+
+                renderImagemCard(imagemEl, produto.imagem, imagemEl ? imagemEl.textContent : '🍫');
+                if (tituloEl && produto.nome) {
+                    tituloEl.textContent = produto.nome;
+                }
+                if (precoEl) {
+                    precoEl.textContent = formatarPrecoBRL(produto.preco);
+                }
+                atualizarAcaoBotaoProduto(botao, produto);
+            });
         })
         .catch(() => {
             // Mantém layout estático em caso de falha de rede.
         });
-}
-
-function atualizarCardColher(seletor, produto, tamanhoPadrao) {
-    if (!produto) return;
-    const card = document.querySelector(seletor);
-    if (!card) return;
-
-    const imagemEl = card.querySelector('.card-imagem');
-    const tituloEl = card.querySelector('h3');
-    const precoEl = card.querySelector('.preco');
-    const botaoEl = card.querySelector('button');
-
-    renderImagemCard(imagemEl, produto.imagem, '🥄');
-
-    if (tituloEl) {
-        tituloEl.textContent = produto.nome.includes('Ovo de Colher') ? 'Ovo de Colher' : produto.nome;
-    }
-
-    if (precoEl) {
-        precoEl.textContent = `R$ ${Number(produto.preco).toFixed(2).replace('.', ',')}`;
-    }
-
-    if (botaoEl) {
-        botaoEl.setAttribute('onclick', `abrirConfigurador('${produto.nome}', ${Number(produto.preco)})`);
-    }
-
-    card.setAttribute('data-preco', String(Number(produto.preco)));
-    if (!card.getAttribute('data-tamanho')) {
-        card.setAttribute('data-tamanho', `${tamanhoPadrao}g`);
-    }
 }
 
 // ===== VERIFICAR DATA LIMITE =====
