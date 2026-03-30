@@ -83,6 +83,12 @@
                             <label>Imagem (URL ou arquivo)</label>
                             <input type="file" id="imagem-produto" accept="image/*">
                             <small>Deixe em branco para manter a imagem atual</small>
+                            <div id="preview-imagem-produto" class="preview-imagem hidden">
+                                <p id="preview-legenda">Imagem atual:</p>
+                                <div class="preview-box">
+                                    <img id="preview-imagem-tag" src="" alt="Preview da imagem do produto">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-buttons">

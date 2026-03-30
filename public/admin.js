@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
     carregarRecheios();
     carregarPedidos();
     atualizarDashboard();
+
+    const inputImagem = document.getElementById('imagem-produto');
+    if (inputImagem) {
+        inputImagem.addEventListener('change', atualizarPreviewImagemSelecionada);
+    }
 });
 
 // ===== RELOGIO =====
@@ -90,11 +95,43 @@ function mostrarFormProduto() {
     document.getElementById('form-container').classList.remove('hidden');
     document.getElementById('form-produto').reset();
     document.getElementById('form-produto').dataset.editId = '';
+    document.querySelector('.form-container h3').textContent = 'Adicionar Produto';
+    esconderPreviewImagem();
 }
 
 function cancelarFormProduto() {
     document.getElementById('form-container').classList.add('hidden');
     document.getElementById('form-produto').reset();
+    esconderPreviewImagem();
+}
+
+function esconderPreviewImagem() {
+    const preview = document.getElementById('preview-imagem-produto');
+    const img = document.getElementById('preview-imagem-tag');
+    if (preview) preview.classList.add('hidden');
+    if (img) img.src = '';
+}
+
+function mostrarPreviewImagem(src, legenda = 'Imagem atual:') {
+    const preview = document.getElementById('preview-imagem-produto');
+    const img = document.getElementById('preview-imagem-tag');
+    const legendaEl = document.getElementById('preview-legenda');
+    if (!preview || !img || !legendaEl) return;
+
+    img.src = src;
+    legendaEl.textContent = legenda;
+    preview.classList.remove('hidden');
+}
+
+function atualizarPreviewImagemSelecionada(event) {
+    const arquivo = event.target.files && event.target.files[0];
+    if (!arquivo) return;
+
+    const leitor = new FileReader();
+    leitor.onload = (e) => {
+        mostrarPreviewImagem(e.target.result, 'Nova imagem selecionada:');
+    };
+    leitor.readAsDataURL(arquivo);
 }
 
 function salvarProduto(event) {
@@ -159,9 +196,16 @@ function editarProduto(id) {
             document.getElementById('nome-produto').value = produto.nome;
             document.getElementById('descricao-produto').value = produto.descricao;
             document.getElementById('preco-produto').value = produto.preco;
+            document.getElementById('imagem-produto').value = '';
             document.getElementById('form-produto').dataset.editId = id;
             document.getElementById('form-container').classList.remove('hidden');
             document.querySelector('.form-container h3').textContent = 'Editar Produto';
+
+            if (produto.imagem && produto.imagem.startsWith('/uploads/')) {
+                mostrarPreviewImagem(produto.imagem, 'Imagem atual:');
+            } else {
+                esconderPreviewImagem();
+            }
         })
         .catch(err => console.error('Erro:', err));
 }

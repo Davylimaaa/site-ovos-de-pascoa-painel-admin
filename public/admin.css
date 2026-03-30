@@ -238,6 +238,35 @@ body {
     font-size: 0.85rem;
 }
 
+.preview-imagem {
+    margin-top: 0.8rem;
+}
+
+.preview-imagem p {
+    font-size: 0.85rem;
+    color: var(--chocolate-medio);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.preview-box {
+    width: 140px;
+    height: 140px;
+    border: 2px dashed var(--rosa-pastel);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    overflow: hidden;
+}
+
+.preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .form-buttons {
     display: flex;
     gap: 1rem;
