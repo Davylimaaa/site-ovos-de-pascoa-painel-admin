@@ -13,6 +13,35 @@ const marcaConfig = {
     dataLimite: '31/03/2026'
 };
 
+// ===== NOTIFICAÇÕES =====
+function mostrarNotificacao(mensagem, tipo = 'info') {
+    const container = document.getElementById('notificacoes-site');
+    if (!container) {
+        return;
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast-site toast-${tipo}`;
+    toast.textContent = mensagem;
+
+    container.appendChild(toast);
+
+    // Ativa animação de entrada
+    requestAnimationFrame(() => {
+        toast.classList.add('visivel');
+    });
+
+    // Remove após alguns segundos
+    setTimeout(() => {
+        toast.classList.remove('visivel');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 250);
+    }, 2500);
+}
+
 // ===== INICIALIZAÇÃO =====
 document.addEventListener('DOMContentLoaded', () => {
     verificarDataLimite();
@@ -76,7 +105,7 @@ function confirmarData() {
     const dataInput = document.getElementById('data-entrega').value;
     
     if (!dataInput) {
-        alert('Por favor, selecione uma data!');
+        mostrarNotificacao('Selecione uma data para continuar.', 'warning');
         return;
     }
     
@@ -174,18 +203,18 @@ function adicionarConfigurado(event) {
     }
     
     if (!baseEscolhida) {
-        alert('Escolha uma base de chocolate!');
+        mostrarNotificacao('Escolha uma base de chocolate.', 'warning');
         return;
     }
     
     if (saboresEscolhidos.length === 0) {
-        alert('Escolha pelo menos um sabor!');
+        mostrarNotificacao('Escolha pelo menos um sabor.', 'warning');
         return;
     }
     
     // Validar máximo 3 sabores para Ovos de Colher
     if (produtoConfigurandoNome.includes('Colher') && saboresEscolhidos.length > 3) {
-        alert('⚠️ Máximo de 3 sabores permitidos para Ovos de Colher!');
+        mostrarNotificacao('Maximo de 3 sabores para Ovos de Colher.', 'warning');
         return;
     }
     
@@ -200,7 +229,7 @@ function adicionarConfigurado(event) {
         id: Date.now()
     });
     
-    alert(`✨ ${produtoConfigurandoNome} adicionado com sucesso!`);
+    mostrarNotificacao(`${produtoConfigurandoNome} adicionado ao carrinho.`, 'success');
     fecharConfigurador();
     atualizarCarrinho();
 }
@@ -214,7 +243,7 @@ function adicionarAoCarrinho(nomeProduto, precoProduto, descricao) {
         id: Date.now()
     });
     
-    alert(`✨ ${nomeProduto} adicionado com sucesso!`);
+    mostrarNotificacao(`${nomeProduto} adicionado ao carrinho.`, 'success');
     atualizarCarrinho();
 }
 
@@ -267,7 +296,7 @@ function removerDoCarrinho(index) {
 
 function abrirCarrinho() {
     if (carrinho.length === 0) {
-        alert('Seu carrinho está vazio! Adicione alguns ovos deliciosos 🍫');
+        mostrarNotificacao('Seu carrinho esta vazio. Adicione alguns ovos.', 'info');
         return;
     }
     document.getElementById('modal-carrinho').style.display = 'block';
@@ -283,7 +312,7 @@ function finalizarPedido(event) {
     event.preventDefault();
     
     if (carrinho.length === 0) {
-        alert('Seu carrinho está vazio!');
+        mostrarNotificacao('Seu carrinho esta vazio.', 'warning');
         return;
     }
     
@@ -291,7 +320,7 @@ function finalizarPedido(event) {
     const tipoEntrega = document.getElementById('entrega-tipo').value;
     
     if (!nomeCliente || !tipoEntrega) {
-        alert('Por favor, preencha todos os dados!');
+        mostrarNotificacao('Preencha nome e forma de entrega.', 'warning');
         return;
     }
     
@@ -372,12 +401,12 @@ function finalizarPedido(event) {
                 mostrarModalSucesso(mensagemSucesso);
             }, 500);
         } else {
-            alert('❌ Erro ao salvar pedido. Tente novamente!');
+            mostrarNotificacao('Erro ao salvar pedido. Tente novamente.', 'error');
         }
     })
     .catch(err => {
         console.error('Erro:', err);
-        alert('❌ Erro ao enviar pedido: ' + err.message);
+        mostrarNotificacao('Erro ao enviar pedido. Tente novamente.', 'error');
     });
 }
 
