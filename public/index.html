@@ -387,30 +387,24 @@
                         </label>
                     </div>
 
-                    <!-- Meio a Meio (2 selects) -->
+                    <!-- Meio a Meio (botões) -->
                     <div id="opcoes-base-meio" style="display:none;">
-                        <p class="dica-meio">Escolha exatamente 2 bases diferentes:</p>
-                        <div class="meio-a-meio-grid">
-                            <div class="meio-lado">
-                                <span class="meio-titulo">Metade 1</span>
-                                <select id="meio-base-1" class="select-meio">
-                                    <option value="">Selecione...</option>
-                                    <option value="Ao Leite">Ao Leite</option>
-                                    <option value="Branco">Branco</option>
-                                    <option value="Amargo">Amargo</option>
-                                </select>
-                            </div>
-                            <div class="meio-divisor">+</div>
-                            <div class="meio-lado">
-                                <span class="meio-titulo">Metade 2</span>
-                                <select id="meio-base-2" class="select-meio">
-                                    <option value="">Selecione...</option>
-                                    <option value="Ao Leite">Ao Leite</option>
-                                    <option value="Branco">Branco</option>
-                                    <option value="Amargo">Amargo</option>
-                                </select>
-                            </div>
+                        <p class="dica-meio">Escolha 2 bases diferentes:</p>
+                        <div class="grid-base-meio">
+                            <label class="base-meio-label">
+                                <input type="checkbox" name="base-meio" value="Ao Leite">
+                                <span>Ao Leite</span>
+                            </label>
+                            <label class="base-meio-label">
+                                <input type="checkbox" name="base-meio" value="Branco">
+                                <span>Branco</span>
+                            </label>
+                            <label class="base-meio-label">
+                                <input type="checkbox" name="base-meio" value="Amargo">
+                                <span>Amargo</span>
+                            </label>
                         </div>
+                        <p class="contador-base-meio" id="contador-base-meio">(0/2)</p>
                     </div>
                 </div>
 

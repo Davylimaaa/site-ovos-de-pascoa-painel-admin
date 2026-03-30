@@ -133,8 +133,11 @@ function abrirConfigurador(nomeProduto, precoProduto) {
     
     // Limpar formulário
     document.querySelectorAll('input[name="base"]').forEach(input => input.checked = false);
-    document.getElementById('meio-base-1').value = '';
-    document.getElementById('meio-base-2').value = '';
+    document.querySelectorAll('input[name="base-meio"]').forEach(input => {
+        input.checked = false;
+        input.disabled = false;
+    });
+    atualizarContadorBaseMeio();
     
     // Resetar para base simples
     alternarModoBase('simples');
@@ -156,6 +159,9 @@ function abrirConfigurador(nomeProduto, precoProduto) {
             atualizarContadorSabores();
             document.querySelectorAll('input[name="sabores"]').forEach(input => {
                 input.addEventListener('change', atualizarContadorSabores);
+            });
+            document.querySelectorAll('input[name="base-meio"]').forEach(input => {
+                input.addEventListener('change', atualizarContadorBaseMeio);
             });
         })
         .catch(() => {
@@ -179,8 +185,11 @@ function alternarModoBase(modo) {
         opcoesSimples.style.display = 'flex';
         opcoesMeio.style.display = 'none';
         // Limpar meio a meio
-        document.getElementById('meio-base-1').value = '';
-        document.getElementById('meio-base-2').value = '';
+        document.querySelectorAll('input[name="base-meio"]').forEach(input => {
+            input.checked = false;
+            input.disabled = false;
+        });
+        atualizarContadorBaseMeio();
     } else {
         btnMeio.classList.add('ativo');
         btnSimples.classList.remove('ativo');
@@ -188,6 +197,25 @@ function alternarModoBase(modo) {
         opcoesMeio.style.display = 'block';
         // Desmarcar radios
         document.querySelectorAll('input[name="base"]').forEach(i => i.checked = false);
+        atualizarContadorBaseMeio();
+    }
+}
+
+function atualizarContadorBaseMeio() {
+    const basesMeio = document.querySelectorAll('input[name="base-meio"]');
+    const selecionadas = Array.from(basesMeio).filter(input => input.checked).length;
+
+    basesMeio.forEach(input => {
+        if (selecionadas >= 2 && !input.checked) {
+            input.disabled = true;
+        } else {
+            input.disabled = false;
+        }
+    });
+
+    const contador = document.getElementById('contador-base-meio');
+    if (contador) {
+        contador.textContent = `(${selecionadas}/2)`;
     }
 }
 
@@ -224,6 +252,9 @@ function fecharConfigurador() {
     document.querySelectorAll('input[name="sabores"]').forEach(input => {
         input.removeEventListener('change', atualizarContadorSabores);
     });
+    document.querySelectorAll('input[name="base-meio"]').forEach(input => {
+        input.removeEventListener('change', atualizarContadorBaseMeio);
+    });
     document.getElementById('modal-configurador').style.display = 'none';
 }
 
@@ -252,17 +283,13 @@ function adicionarConfigurado(event) {
     
     // Se modo meio a meio, montar base combinada
     if (modoBase === 'meio') {
-        const m1 = document.getElementById('meio-base-1').value;
-        const m2 = document.getElementById('meio-base-2').value;
-        if (!m1 || !m2) {
-            mostrarNotificacao('Escolha as duas metades do chocolate.', 'warning');
+        const basesSelecionadas = Array.from(document.querySelectorAll('input[name="base-meio"]:checked'));
+        if (basesSelecionadas.length !== 2) {
+            mostrarNotificacao('Escolha exatamente 2 bases para o meio a meio.', 'warning');
             return;
         }
-        if (m1 === m2) {
-            mostrarNotificacao('Escolha bases diferentes para o meio a meio.', 'warning');
-            return;
-        }
-        baseEscolhida = `${m1} + ${m2} (Meio a Meio)`;
+        const nomesBases = basesSelecionadas.map(input => input.value);
+        baseEscolhida = `${nomesBases[0]} + ${nomesBases[1]} (Meio a Meio)`;
     }
 
     if (!baseEscolhida) {

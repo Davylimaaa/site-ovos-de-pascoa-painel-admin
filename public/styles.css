@@ -425,6 +425,92 @@ tbody tr:hover {
     background-color: #45a049;
 }
 
+/* BASE TOGGLE (Simples / Meio a Meio) */
+.base-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.7rem 0;
+}
+
+.btn-toggle {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: 2px solid var(--rosa-pastel);
+    border-radius: 20px;
+    background: #f5f5f5;
+    color: var(--chocolate-escuro);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-size: 0.9rem;
+}
+
+.btn-toggle.ativo {
+    background: linear-gradient(135deg, var(--chocolate-medio), var(--chocolate-escuro));
+    color: white;
+    border-color: var(--chocolate-escuro);
+}
+
+.btn-toggle:hover:not(.ativo) {
+    background: var(--rosa-pastel);
+}
+
+/* Meio a Meio */
+.dica-meio {
+    font-size: 0.85rem;
+    color: var(--chocolate-medio);
+    margin-bottom: 0.8rem;
+}
+
+.grid-base-meio {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.8rem;
+}
+
+.base-meio-label {
+    cursor: pointer;
+}
+
+.base-meio-label input {
+    display: none;
+}
+
+.base-meio-label span {
+    display: block;
+    text-align: center;
+    font-weight: 700;
+    padding: 0.9rem 0.6rem;
+    border-radius: 10px;
+    background: var(--creme);
+    border: 2px solid transparent;
+    transition: all 0.25s ease;
+    color: var(--chocolate-escuro);
+}
+
+.base-meio-label:hover span {
+    background: var(--rosa-pastel);
+    border-color: var(--ouro);
+}
+
+.base-meio-label input:checked + span {
+    background: linear-gradient(135deg, var(--chocolate-medio), var(--chocolate-escuro));
+    color: white;
+    border-color: var(--chocolate-escuro);
+}
+
+.base-meio-label input:disabled + span {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.contador-base-meio {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--chocolate-medio);
+    font-weight: 700;
+}
+
 /* Botão de Entrega */
 .btn-entrega {
     background-color: #f0f0f0;
